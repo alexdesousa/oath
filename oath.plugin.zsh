@@ -1,7 +1,10 @@
-# # Oath zsh plugin
-#
 # Oath manages private keys securely in order to generate one-time 6 digit
 # tokens.
+
+# shellcheck disable=SC2012
+# shellcheck disable=SC2162
+# shellcheck disable=SC2181
+# shellcheck disable=SC2207
 
 ##################
 # Global variables
@@ -51,44 +54,44 @@ function __oath_check_prerequisites() {
   return 0
 }
 
-# Add usage
-function __oath_add_usage() {
-  echo "Usage:
-
-~ $ oath_add <key identifier>
-
-Example:
-
-~ $ oath_add twitter.com
-Private key:
-[SUCCESS] Key added for twitter.com"
-}
-
-# Delete usage
-function __oath_delete_usage() {
-  echo "Usage:
-
-~ $ oath_delete <key identifier>
-
-Example:
-
-~ $ oath_delete twitter.com
-[WARN]    Deleting $OATH_DIR/.oath/twitter.com/424184E122529120CC1821756759ADDD12CB6379.gpg
-[WARN]    Deleting $OATH_DIR/.oath/twitter.com
-[SUCCESS] Key deleted for twitter.com"
-}
-
 # Show usage
 function __oath_usage() {
   echo "Usage:
 
-~ $ oath <key identifier>
+~ $ oath [add | delete | show | list | update | help] <key identifier>
 
 Example:
 
-~ $ oath twitter.com
-012345
-[SUCCESS]  Code copied to clipboard"
+- Adding a key:
+
+  ~ $ oath add twitter.com
+  Private key:
+  [SUCCESS] Key added for twitter.com
+
+- Showing and copying a 6 digit code for a key:
+
+- Deleting a key:
+
+  ~ $ oath delete twitter.com
+  [WARN]    Deleting $OATH_DIR/.oath/twitter.com/424184E122529120CC1821756759ADDD12CB6379.gpg
+  [WARN]    Deleting $OATH_DIR/.oath/twitter.com
+  [SUCCESS] Key deleted for twitter.com
+
+- Showing and copying a 6 digit code for a key:
+
+  ~ $ oath twitter.com
+  012345
+  [SUCCESS]  Code copied to clipboard
+
+- Listing keys:
+
+  ~ $ oath list
+  twitter.com
+  github.com
+
+- Updating oath:
+
+  ~ $ oath update"
 }
 
 # Gets secret dir.
@@ -132,12 +135,8 @@ function __oath_get_private_key() {
   echo "$private_key"
 }
 
-
-##################
-# Public functions
-
 # Adds a new private key.
-function oath_add() {
+function __oath_add() {
   local name="$1"
   local private_key=""
   local secret_dir=""
@@ -148,21 +147,7 @@ function oath_add() {
 
   # Parameters and pre-requisites
 
-  if ! $(__oath_check_prerequisites)
-  then
-    return 1
-  elif [ -z "$name" ]
-  then
-    __oath_warn "Missing key identifier"
-    __oath_add_usage
-
-    return 1
-  elif [ "$name" = "help" ]
-  then
-    __oath_add_usage
-
-    return 0
-  elif [ -f "$secret_filename" ]
+  if [ -f "$secret_filename" ]
   then
     __oath_warn "File $secret_filename already exists"
 
@@ -197,7 +182,7 @@ function oath_add() {
 }
 
 # Deletes a private key.
-function oath_delete() {
+function __oath_delete() {
   local name="$1"
   local secret_dir=""
   local secret_filename=""
@@ -205,24 +190,6 @@ function oath_delete() {
 
   secret_dir=$(__oath_secret_dir "$name")
   secret_filename=$(__oath_secret_filename "$name")
-
-  # Parameters and pre-requisites
-
-  if ! $(__oath_check_prerequisites)
-  then
-    return 1
-  elif [ -z "$name" ]
-  then
-    __oath_warn "Missing key identifier"
-    __oath_delete_usage
-
-    return 1
-  elif [ "$name" = "help" ]
-  then
-    __oath_delete_usage
-
-    return 0
-  fi
 
   # Functionality
 
@@ -240,7 +207,7 @@ function oath_delete() {
     rm "$secret_filename"
   fi
 
-  if [ -d "$secret_dir" ] && [ -z $(ls -A "$secret_dir") ]
+  if [ -d "$secret_dir" ] && [ -z "$(ls -A "$secret_dir")" ]
   then
     __oath_warn "Deleting $secret_dir"
     rm -rf "$secret_dir"
@@ -251,36 +218,11 @@ function oath_delete() {
   return 0
 }
 
-# Show 6 digit number.
-function oath() {
+# Shows 6 digit code.
+function __oath_show() {
   local name="$1"
-  local secret_dir=""
-  local secret_filename=""
   local private_key=""
   local code=""
-
-  secret_dir=$(__oath_secret_dir "$name")
-  secret_filename=$(__oath_secret_filename "$name")
-
-  # Parameters and pre-requisites
-
-  if ! $(__oath_check_prerequisites)
-  then
-    return 1
-  elif [ -z "$name" ]
-  then
-    __oath_warn "Missing key identifier"
-    __oath_usage
-
-    return 1
-  elif [ "$name" = "help" ]
-  then
-    __oath_usage
-
-    return 0
-  fi
-
-  # Functionality
 
   private_key=$(__oath_get_private_key "$name")
   if [ $? -ne 0 ] || [ -z "$private_key" ]
@@ -313,8 +255,20 @@ function oath() {
   return 0
 }
 
-# Updates oath plugin
-function oath_update() {
+# Lists keys.
+function __oath_list() {
+  local keys=""
+
+  keys=$(
+    ls -A "$OATH_DIR"/**/"$OATH_KEY".gpg |
+    sed 's#^'"$OATH_DIR"'/\(.*\)/'"$OATH_KEY"'\.gpg$#\1#g'
+  )
+
+  echo "$keys"
+}
+
+# Updates Oath.
+function __oath_update() {
   if [ -d "$ZSH_CUSTOM/plugins/oath/.git" ]
   then
     (
@@ -323,3 +277,107 @@ function oath_update() {
     )
   fi
 }
+
+# Oath Completions.
+function __oath() {
+  local current=""
+  local cmd=""
+  local cmds="add delete show list update help"
+  local keys=""
+
+  if ! __oath_check_prerequisites
+  then
+    return 1
+  fi
+
+  current="${COMP_WORDS[COMP_CWORD]}"
+  cmd=""
+  keys=$(__oath_list | tr '\n' ' ')
+
+  COMPREPLY=()
+
+  case "$cmd" in
+    add | update | list | help)
+      ;;
+    show | delete)
+      COMPREPLY=($(compgen -W "$keys" -- "$current"))
+      ;;
+    *)
+      COMPREPLY=($(compgen -W "$cmds $keys" -- "$current"))
+      ;;
+  esac
+
+  return 0
+}
+
+##################
+# Public functions
+
+# Oath command.
+function oath() {
+  local cmd="$1"
+  local name="$2"
+  local secret_dir=""
+  local secret_filename=""
+  local private_key=""
+  local code=""
+
+  # Check commands
+
+  if ! __oath_check_prerequisites
+  then
+    return 1
+  fi
+
+  case "$cmd" in
+    add | delete | show)
+      if [ -z "$name" ]
+      then
+        __oath_warn "Missing key identifier"
+        __oath_usage
+
+        return 1
+      fi
+      ;;
+    list | update | help)
+      ;;
+    *)
+      if [ -z "$name" ]
+      then
+        name="$cmd"
+        cmd="show"
+      fi
+      ;;
+  esac
+
+  secret_dir=$(__oath_secret_dir "$name")
+  secret_filename=$(__oath_secret_filename "$name")
+
+  # Functionality
+
+  case "$cmd" in
+    show)
+      __oath_show "$name"
+      ;;
+    add)
+      __oath_add "$name"
+      ;;
+    delete)
+      __oath_delete "$name"
+      ;;
+    list)
+      __oath_list
+      ;;
+    update)
+      __oath_update
+      ;;
+    help)
+      __oath_usage
+      ;;
+  esac
+
+  return $?
+}
+
+# Completions
+complete -F __oath oath

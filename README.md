@@ -26,7 +26,7 @@ e.g:
 - Adding a new key for `twitter.com` e.g:
 
   ```bash
-  ~ $ oath_add twitter.com
+  ~ $ oath add twitter.com
   Private Key:
   [SUCESS]  Key created for twitter.com
   ```
@@ -34,7 +34,7 @@ e.g:
 - Deleting a key for `twitter.com` e.g:
 
   ```bash
-  ~ $ oath_delete twitter.com
+  ~ $ oath delete twitter.com
   [WARN]    Deleting $OATH_DIR/.oath/twitter.com/424184E122529120CC1821756759ADDD12CB6379.gpg
   [WARN]    Deleting $OATH_DIR/.oath/twitter.com
   [SUCCESS]  Key deleted for twitter.com
@@ -48,10 +48,18 @@ e.g:
   [SUCCESS]  Code copied to clipboard
   ```
 
+- Listing keys:
+
+  ```bash
+  ~ $ oath list twitter.com
+  twitter.com
+  github.com
+  ```
+
 - Updating `Oath` to latest version:
 
   ```bash
-  ~ $ oath_update
+  ~ $ oath update
   ```
 
 ## Installation
