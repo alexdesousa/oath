@@ -56,42 +56,41 @@ function __oath_check_prerequisites() {
 
 # Show usage
 function __oath_usage() {
-  echo "Usage:
+  echo "\033[1;1mUsage:\033[0;0m
 
-~ $ oath [add | delete | show | list | update | help] <key identifier>
+    ~ $ oath [add | delete | show | list | update | help] <key identifier>
 
-Example:
+\033[1;1mExamples:\033[0;0m
 
-- Adding a key:
+\033[1;1m1. \033[0;0m Adding a key:
 
-  ~ $ oath add twitter.com
-  Private key:
-  [SUCCESS] Key added for twitter.com
+    ~ $ oath add twitter.com
+    Private key:
+    $(__oath_success "Key added for twitter.com")
 
-- Showing and copying a 6 digit code for a key:
+\033[1;1m2. \033[0;0m Deleting a key:
 
-- Deleting a key:
+    ~ $ oath delete twitter.com
+    $(__oath_success "Key deleted for twitter.com")
 
-  ~ $ oath delete twitter.com
-  [WARN]    Deleting $OATH_DIR/.oath/twitter.com/424184E122529120CC1821756759ADDD12CB6379.gpg
-  [WARN]    Deleting $OATH_DIR/.oath/twitter.com
-  [SUCCESS] Key deleted for twitter.com
+\033[1;1m3. \033[0;0m Showing and copying a 6 digit code for a key:
 
-- Showing and copying a 6 digit code for a key:
+    ~ $ oath twitter.com
+    012345
+    $(__oath_success "Code copied to clipboard")
 
-  ~ $ oath twitter.com
-  012345
-  [SUCCESS]  Code copied to clipboard
+\033[1;1m4. \033[0;0m Listing keys:
 
-- Listing keys:
+    ~ $ oath list
+    twitter.com
+    github.com
 
-  ~ $ oath list
-  twitter.com
-  github.com
+\033[1;1m5. \033[0;0m Updating oath:
 
-- Updating oath:
-
-  ~ $ oath update"
+    ~ $ oath update
+    From https://github.com/alexdesousa/oath
+     * branch            master     -> FETCH_HEAD
+    Already up to date."
 }
 
 # Gets secret dir.
