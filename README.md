@@ -73,6 +73,10 @@ Just clone `Oath` as follows:
 And add the oath to your `plugins` in `$HOME/.zshrc` file:
 
 ```bash
+# Activate completions
+autoload -U +X compinit && compinit
+autoload -U +X bashcompinit && bashcompinit
+
 plugins=(
   oath
 )
