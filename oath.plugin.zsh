@@ -293,11 +293,11 @@ function __oath() {
 
   COMPREPLY=()
   keys=$(__oath_list | tr '\n' ' ')
+  current="${COMP_WORDS[COMP_CWORD]}"
+  previous="${COMP_WORDS[COMP_CWORD - 1]}"
 
   if [ "$COMP_CWORD" -eq 1 ]
   then
-    current="${COMP_WORDS[COMP_CWORD]}"
-
     case "$current" in
       add | update | list | help)
         ;;
@@ -310,9 +310,6 @@ function __oath() {
     esac
   elif [ "$COMP_CWORD" -eq 2 ]
   then
-    current="${COMP_WORDS[COMP_CWORD]}"
-    previou="${COMP_WORDS[COMP_CWORD - 1]}"
-
     case "$previous" in
       show | delete)
         COMPREPLY=($(compgen -W "$keys" -- "$current"))
