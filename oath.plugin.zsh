@@ -281,6 +281,7 @@ function __oath_update() {
 # Oath Completions.
 function __oath() {
   local current=""
+  local previous=""
   local cmd=""
   local cmds="add delete show list update help"
   local keys=""
@@ -290,22 +291,36 @@ function __oath() {
     return 1
   fi
 
-  current="${COMP_WORDS[COMP_CWORD]}"
-  cmd=""
+  COMPREPLY=()
   keys=$(__oath_list | tr '\n' ' ')
 
-  COMPREPLY=()
+  if [ "$COMP_CWORD" -eq 1 ]
+  then
+    current="${COMP_WORDS[COMP_CWORD]}"
 
-  case "$cmd" in
-    add | update | list | help)
-      ;;
-    show | delete)
-      COMPREPLY=($(compgen -W "$keys" -- "$current"))
-      ;;
-    *)
-      COMPREPLY=($(compgen -W "$cmds $keys" -- "$current"))
-      ;;
-  esac
+    case "$current" in
+      add | update | list | help)
+        ;;
+      show | delete)
+        COMPREPLY=($(compgen -W "$keys" -- "$current"))
+        ;;
+      *)
+        COMPREPLY=($(compgen -W "$cmds $keys" -- "$current"))
+        ;;
+    esac
+  elif [ "$COMP_CWORD" -eq 2 ]
+  then
+    current="${COMP_WORDS[COMP_CWORD]}"
+    previou="${COMP_WORDS[COMP_CWORD - 1]}"
+
+    case "$previous" in
+      show | delete)
+        COMPREPLY=($(compgen -W "$keys" -- "$current"))
+        ;;
+      *)
+        ;;
+    esac
+  fi
 
   return 0
 }
