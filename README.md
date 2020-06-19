@@ -23,7 +23,7 @@ authentication 6 digit tokens. It's highly inspired in
 `Oath` allows to add, remove keys as well as show the temporal 6 digit token
 e.g:
 
-- Adding a new key for `twitter.com` e.g:
+- Adding a new key for a domain e.g. for `twitter.com`:
 
   ```bash
   ~ $ oath add twitter.com
@@ -31,7 +31,7 @@ e.g:
   [SUCESS]  Key created for twitter.com
   ```
 
-- Deleting a key for `twitter.com` e.g:
+- Deleting a key for a domain e.g. for `twitter.com`:
 
   ```bash
   ~ $ oath delete twitter.com
@@ -40,7 +40,7 @@ e.g:
   [SUCCESS]  Key deleted for twitter.com
   ```
 
-- Showing (and copying to clipboard) the current 6 digit token e.g:
+- Showing (and copying to clipboard) the current 6 digit token e.g. for `twitter.com`:
 
   ```bash
   ~ $ oath twitter.com
@@ -48,7 +48,15 @@ e.g:
   [SUCCESS]  Code copied to clipboard
   ```
 
-- Listing keys:
+- Showing (and copying to clipboard) the key for a domain e.g. for `twitter.com`:
+
+  ```bash
+  ~ $ oath pk twitter.com
+  SomePrivateKey
+  [SUCCESS]  Private key copied to clipboard
+  ```
+
+- Listing keys for all domains e.g:
 
   ```bash
   ~ $ oath list twitter.com
