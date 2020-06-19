@@ -254,6 +254,34 @@ function __oath_show() {
   return 0
 }
 
+# Shows the private key.
+function __oath_pk() {
+  local name="$1"
+  local private_key=""
+
+  private_key=$(__oath_get_private_key "$name")
+  if [ $? -ne 0 ] || [ -z "$private_key" ]
+  then
+    __oath_error "Cannot get the private key for $name"
+
+    return 1
+  fi
+
+  echo "$private_key"
+
+  xclip -sel clip <(echo -n "$private_key")
+  if [ $? -ne 0 ] || [ -z "$private_key" ]
+  then
+    __oath_error "Cannot copy private key to clipboard"
+
+    return 1
+  fi
+
+  __oath_success "Private key copied to clipboard"
+
+  return 0
+}
+
 # Lists keys.
 function __oath_list() {
   local keys=""
@@ -282,7 +310,7 @@ function __oath() {
   local current=""
   local previous=""
   local cmd=""
-  local cmds="add delete show list update help"
+  local cmds="add delete show pk list update help"
   local keys=""
 
   if ! __oath_check_prerequisites
@@ -310,7 +338,7 @@ function __oath() {
   elif [ "$COMP_CWORD" -eq 2 ]
   then
     case "$previous" in
-      show | delete)
+      show | delete | pk)
         COMPREPLY=($(compgen -W "$keys" -- "$current"))
         ;;
       *)
@@ -369,6 +397,9 @@ function oath() {
   case "$cmd" in
     show)
       __oath_show "$name"
+      ;;
+    pk)
+      __oath_pk "$name"
       ;;
     add)
       __oath_add "$name"
